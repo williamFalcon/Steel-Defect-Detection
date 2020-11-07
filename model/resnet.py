@@ -38,9 +38,10 @@ class ResNet34(nn.Module):
             nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         )
+
         self.second = nn.Sequential(
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
             ResidualBlock(64, 64),
             ResidualBlock(64, 64),
         )

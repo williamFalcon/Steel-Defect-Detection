@@ -31,36 +31,38 @@ class Unet(nn.Module):
         )
         self.up1 = UpBlock(512, 256, 128)
         self.up2 = UpBlock(256, 128, 64)
-        self.up3 = UpBlock(128, 64, 32)
-        self.up4 = UpBlock(64, 32, 32)
+        self.up3 = UpBlock(128, 64, 64)
+        self.up4 = UpBlock(128, 64, 64)
         self.classify = nn.Sequential(
             nn.Conv2d(64, n_class, 1)
         )
 
     def forward(self, x):
+        H,W = x.shape[2:]
         first, second, third, fourth, fifth = self.backbone(x)
         x = self.trans(fifth)
-        import pdb
-        pdb.set_trace()
+
         h, w = fourth.shape[2:]
         x = F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
-        
         x = torch.cat([fourth, x],dim=1)
-
         x = self.up1(x)
+
         h, w = third.shape[2:]
         x = F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
         x = torch.cat([third, x],dim=1)
         x = self.up2(x)
+
         h, w = second.shape[2:]
         x = F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
         x = torch.cat([second, x],dim=1)
         x = self.up3(x)
+
         h, w = first.shape[2:]
         x = F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
         x = torch.cat([first, x],dim=1)
         x = self.up4(x)
-
+        
+        x = F.interpolate(x,(H,W),mode='bilinear',align_corners=True)
         x = self.classify(x)
         return x
 
