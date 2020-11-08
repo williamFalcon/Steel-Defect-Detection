@@ -9,20 +9,20 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+nn.GELU
 
 class double_conv2(nn.Module):
-    '''(conv-BN-Hardswish)X2 :   in_ch  , out_ch , out_ch    '''
+    '''(conv-BN-GELU)X2 :   in_ch  , out_ch , out_ch    '''
 
     def __init__(self, in_ch, out_ch):
         super(double_conv2, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_ch, out_ch, 3, padding=2, dilation=2),
             nn.BatchNorm2d(out_ch),
-            nn.Hardswish(),  # True means cover the origin input
+            nn.GELU(),  # True means cover the origin input
             nn.Conv2d(out_ch, out_ch, 3, padding=3, dilation=3),
             nn.BatchNorm2d(out_ch),
-            nn.Hardswish())
+            nn.GELU())
 
     def forward(self, x):
         x = self.conv(x)
@@ -130,17 +130,17 @@ class outconv(nn.Module):
 
 
 class double_conv(nn.Module):
-    '''(conv-BN-Hardswish)X2 :   in_ch  , in_ch , out_ch    '''
+    '''(conv-BN-GELU)X2 :   in_ch  , in_ch , out_ch    '''
 
     def __init__(self, in_ch, out_ch):
         super(double_conv, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_ch, in_ch, 3, padding=2, dilation=2),
             nn.BatchNorm2d(in_ch),
-            nn.Hardswish(),  # True means cover the origin input
+            nn.GELU(),  # True means cover the origin input
             nn.Conv2d(in_ch, out_ch, 3, padding=3, dilation=3),
             nn.BatchNorm2d(out_ch),
-            nn.Hardswish())
+            nn.GELU())
 
     def forward(self, x):
         x = self.conv(x)
@@ -148,17 +148,17 @@ class double_conv(nn.Module):
 
 
 class double_conv_in(nn.Module):
-    '''(conv-BN-Hardswish)X2 :   in_ch  , in_ch , out_ch    '''
+    '''(conv-BN-GELU)X2 :   in_ch  , in_ch , out_ch    '''
 
     def __init__(self, in_ch, out_ch):
         super(double_conv_in, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_ch, in_ch, 5, padding=2),
             nn.BatchNorm2d(in_ch),
-            nn.Hardswish(),  # True means cover the origin input
+            nn.GELU(),  # True means cover the origin input
             nn.Conv2d(in_ch, out_ch, 3, padding=1, stride=2),
             nn.BatchNorm2d(out_ch),
-            nn.Hardswish(),
+            nn.GELU(),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
         )
 
