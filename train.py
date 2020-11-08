@@ -17,10 +17,15 @@ from model.unet_plus import Unet
 from util.loss import DiceLoss, lovasz_softmax
 from util.lr_scheduler import WarmupMultiStepLR
 
+if not os.path.exists('weights'):
+    os.mkdir('weights')
+
 parser = ArgumentParser('Steel Defect')
 parser.add_argument('--root', type=str, default='data/steel')
+parser.add_argument('--n_cpu', type=int, default=4)
 parser.add_argument('--batch_size', type=int, default=2)
 arg = parser.parse_args()
+print(arg)
 if torch.cuda.is_available():
     device = torch.device('cuda')
     torch.backends.cudnn.enabled = True
@@ -31,11 +36,11 @@ train_csv = pd.read_csv(os.path.join(arg.root, 'train.csv'))
 train_dataset = SteelData(root=arg.root, mode='train',
                           csv=train_csv)
 train_dataset[0]
-train_loader = DataLoader(train_dataset, num_workers=2,
+train_loader = DataLoader(train_dataset, num_workers=arg.n_cpu,
                           shuffle=True, drop_last=True, batch_size=arg.batch_size)
 val_dataset = SteelData(root=arg.root, mode='val',
                         csv=train_csv)
-val_loader = DataLoader(val_dataset, num_workers=2,
+val_loader = DataLoader(val_dataset, num_workers=arg.n_cpu,
                         shuffle=True, drop_last=True, batch_size=arg.batch_size)
 model = Unet(5, cc=16).to(device)
 bce = BCEWithLogitsLoss().cuda()
@@ -48,7 +53,7 @@ def criterion(y_pred, y):
     return bce_loss + dice_loss
 
 
-optim = Adam(model.parameters())
+optim = AdamW(model.parameters(), lr=7e-5)
 
 
 def output_transform(output):
@@ -89,7 +94,7 @@ def eval_(trainer):
     global last_iou
     if output['mIOU'] > last_iou:
         last_iou = output['mIOU']
-        torch.save(model, f'weights/{trainer.state.epoch}_unet++.pth')
+        torch.save(model, f'weights/best_unet++.pth')
     print(">>" * 20)
     with open('out.txt', 'a') as f:
         s = f"Epoch {trainer.state.epoch} Loss {output['loss']} mIOU :{output['mIOU']}"
