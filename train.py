@@ -12,10 +12,10 @@ from torch.optim import SGD, Adam, AdamW
 from torch.utils.data import DataLoader
 
 from dataset.dataset import SteelData
-from model.deeplabv3_plus import DeeplabV3Plus
+
 from model.unet_plus import Unet
 from util.loss import DiceLoss, lovasz_softmax
-from util.lr_scheduler import WarmupMultiStepLR
+from util.optimizer import RAdam
 
 if not os.path.exists('weights'):
     os.mkdir('weights')
@@ -26,6 +26,7 @@ parser.add_argument('--n_cpu', type=int, default=4)
 parser.add_argument('--batch_size', type=int, default=2)
 parser.add_argument('--group', type=int, default=16, help="Unet groups")
 parser.add_argument('--lr', type=float, default=7e-5, help='defalut lr')
+parser.add_argument('--radam', action="store_true", help="use radam")
 arg = parser.parse_args()
 print(arg)
 if torch.cuda.is_available():
@@ -37,7 +38,7 @@ else:
 train_csv = pd.read_csv(os.path.join(arg.root, 'train.csv'))
 train_dataset = SteelData(root=arg.root, mode='train',
                           csv=train_csv)
-train_dataset[0]
+
 train_loader = DataLoader(train_dataset, num_workers=arg.n_cpu,
                           shuffle=True, drop_last=True, batch_size=arg.batch_size)
 val_dataset = SteelData(root=arg.root, mode='val',
@@ -55,8 +56,11 @@ def criterion(y_pred, y):
     return bce_loss + dice_loss
 
 
-optim = AdamW(model.parameters(), lr=arg.lr, weight_decay=4e-5)
-
+if arg.radam:
+    print("Use Radam")
+    optim = RAdam(model.parameters(), lr=arg.lr, weight_decay=4e-5)
+else:
+    optim = AdamW(model.parameters(), lr=arg.lr, weight_decay=4e-5)
 
 def output_transform(output):
     y_pred, y = output
@@ -102,7 +106,7 @@ def eval_(trainer):
         s = f"Epoch {trainer.state.epoch} Loss {output['loss']} mIOU :{output['mIOU']}"
         print(s)
         f.write(s)
-    print(">>"*20)
+    print(">>" * 20)
 
 
 trainer.run(train_loader, max_epochs=100)
