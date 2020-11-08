@@ -24,6 +24,8 @@ parser = ArgumentParser('Steel Defect')
 parser.add_argument('--root', type=str, default='data/steel')
 parser.add_argument('--n_cpu', type=int, default=4)
 parser.add_argument('--batch_size', type=int, default=2)
+parser.add_argument('--group', type=int, default=16, help="Unet groups")
+parser.add_argument('--lr', type=float, default=7e-5, help='defalut lr')
 arg = parser.parse_args()
 print(arg)
 if torch.cuda.is_available():
@@ -42,7 +44,7 @@ val_dataset = SteelData(root=arg.root, mode='val',
                         csv=train_csv)
 val_loader = DataLoader(val_dataset, num_workers=arg.n_cpu,
                         shuffle=True, drop_last=True, batch_size=arg.batch_size)
-model = Unet(5, cc=16).to(device)
+model = Unet(5, cc=arg.group).to(device)
 bce = BCEWithLogitsLoss().cuda()
 dice = DiceLoss().cuda()
 
@@ -53,7 +55,7 @@ def criterion(y_pred, y):
     return bce_loss + dice_loss
 
 
-optim = AdamW(model.parameters(), lr=7e-5)
+optim = AdamW(model.parameters(), lr=arg.lr, weight_decay=4e-5)
 
 
 def output_transform(output):
