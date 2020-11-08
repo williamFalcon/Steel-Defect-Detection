@@ -5,7 +5,10 @@ __pycache__/
 
 # C extensions
 *.so
-
+weights/*
+out.txt
+.vscode
+.idea
 # Distribution / packaging
 .Python
 build/

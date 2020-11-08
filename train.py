@@ -25,7 +25,7 @@ parser.add_argument('--root', type=str, default='data/steel')
 parser.add_argument('--n_cpu', type=int, default=4)
 parser.add_argument('--batch_size', type=int, default=2)
 parser.add_argument('--group', type=int, default=16, help="Unet groups")
-parser.add_argument('--lr', type=float, default=7e-5, help='defalut lr')
+parser.add_argument('--lr', type=float, default=6e-4, help='defalut lr')
 arg = parser.parse_args()
 print(arg)
 if torch.cuda.is_available():
