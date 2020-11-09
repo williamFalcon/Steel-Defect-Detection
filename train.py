@@ -47,7 +47,7 @@ val_dataset = SteelData(root=arg.root, mode='val',
 val_loader = DataLoader(val_dataset, num_workers=arg.n_cpu,
                         shuffle=True, drop_last=True, batch_size=arg.batch_size)
 
-model = Model(arg.model, 5, device)
+model = Model(arg.model, 5, device=device)
 segmodel = model.create_model()
 bce = BCEWithLogitsLoss()
 bce.to(device)
