@@ -28,7 +28,7 @@ parser.add_argument('--batch_size', type=int, default=2)
 parser.add_argument('--group', type=int, default=16, help="Unet groups")
 parser.add_argument('--lr', type=float, default=6e-4, help='defalut lr')
 parser.add_argument('--backbone', type=str, default='b0', help='efficient net  choose')
-parser.add_argument('--radam',action='stroe_true')
+parser.add_argument('--radam',action='store_true')
 arg = parser.parse_args()
 print(arg)
 if torch.cuda.is_available():
