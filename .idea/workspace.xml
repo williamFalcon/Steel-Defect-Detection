@@ -18,23 +18,17 @@
     </expand>
     <select />
   </component>
-  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
-    <generated />
-  </component>
-  <component name="CMakeSettings">
-    <configurations>
-      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
-    </configurations>
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="bd868806-eb4f-428c-b99e-ea9318f069b1" name="默认的" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Steel-Defect-Detection.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/loss.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/resnet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/resnet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/unet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/unet.py" afterDir="false" />
+    <list default="true" id="245d96b2-1102-4ecd-9253-f080e07d88fe" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/segmentation/unet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/test_unet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Steel-Defect-Detection.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Steel-Defect-Detection.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backbone/efficientnet.py" beforeDir="false" afterPath="$PROJECT_DIR$/backbone/efficientnet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/steel" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/loss.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/segmentation/unet_plus.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -52,28 +46,24 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectId" id="1jxKqODGolOQR4PUGiTF6K7F10j" />
+  <component name="ProjectId" id="1k2HvLWusepBW61I9VLsYGu6yV0" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="bd868806-eb4f-428c-b99e-ea9318f069b1" name="默认的" comment="" />
-      <created>1604740492530</created>
+      <changelist id="245d96b2-1102-4ecd-9253-f080e07d88fe" name="Default Changelist" comment="" />
+      <created>1604891997149</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1604740492530</updated>
-      <workItem from="1604740493764" duration="2158000" />
+      <updated>1604891997149</updated>
     </task>
     <servers />
   </component>
@@ -89,9 +79,9 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
-    <state x="269" y="130" key="SettingsEditor" timestamp="1604740516404">
+    <state x="254" y="131" key="SettingsEditor" timestamp="1604899539997">
       <screen x="0" y="0" width="1504" height="972" />
     </state>
-    <state x="269" y="130" key="SettingsEditor/0.0.1504.972@0.0.1504.972" timestamp="1604740516404" />
+    <state x="254" y="131" key="SettingsEditor/0.0.1504.972@0.0.1504.972" timestamp="1604899539997" />
   </component>
 </project>
