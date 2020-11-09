@@ -81,8 +81,8 @@ metric = {
 }
 
 trainer = create_supervised_trainer(
-    model, optim, criterion, device)
-evaluator = create_supervised_evaluator(model, metric, device)
+    segmodel, optim, criterion, device)
+evaluator = create_supervised_evaluator(segmodel, metric, device)
 
 last_iou = 0
 
@@ -104,7 +104,7 @@ def eval_(trainer):
     global last_iou
     if output['mIOU'] > last_iou:
         last_iou = output['mIOU']
-        torch.save(model, f'weights/best_unet++.pth')
+        torch.save(segmodel, f'weights/best_unet++.pth')
     print(">>" * 20)
     with open('out.txt', 'a') as f:
         s = f"Epoch {trainer.state.epoch} Loss {output['loss']} mIOU :{output['mIOU']}"
