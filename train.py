@@ -53,7 +53,7 @@ backbone.eval()
 endpoints = backbone.extract_endpoints(inputs)
 filters = [endpoints[f'reduction_{i}'].shape[1] for i in range(1, 6)]
 backbone.train()
-model = Decoder(backbone, filters, num_class=4).to(device)
+model = Decoder(backbone, filters, num_class=5).to(device)
 
 bce = BCEWithLogitsLoss().to(device)
 dice = DiceLoss().to(device)
