@@ -10,7 +10,7 @@ from model.model import Model
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import SGD, Adam, AdamW
 from torch.utils.data import DataLoader
-from util.optimizer import  RAdam
+from util.optimizer import RAdam
 from dataset.dataset import SteelData
 
 from util.loss import DiceLoss, lovasz_softmax
@@ -25,8 +25,9 @@ parser.add_argument('--n_cpu', type=int, default=4)
 parser.add_argument('--batch_size', type=int, default=2)
 parser.add_argument('--group', type=int, default=16, help="Unet groups")
 parser.add_argument('--lr', type=float, default=6e-4, help='defalut lr')
-parser.add_argument('--model', type=str, default='resnet34', help='efficient net  choose')
-parser.add_argument('--radam',action='store_true')
+parser.add_argument('--model', type=str, default='resnet34',
+                    help='efficient net  choose')
+parser.add_argument('--radam', action='store_true')
 arg = parser.parse_args()
 print(arg)
 if torch.cuda.is_available():
@@ -46,17 +47,19 @@ val_dataset = SteelData(root=arg.root, mode='val',
 val_loader = DataLoader(val_dataset, num_workers=arg.n_cpu,
                         shuffle=True, drop_last=True, batch_size=arg.batch_size)
 
-model = Model(arg.model, 5)
+model = Model(arg.model, 5, device)
 segmodel = model.create_model()
-bce = BCEWithLogitsLoss().to(device)
-dice = DiceLoss().to(device)
+bce = BCEWithLogitsLoss()
+bce.to(device)
+dice = DiceLoss()
+dice.to(device)
 
 
 def criterion(y_pred, y):
     bce_loss = bce(y_pred, y)
     dice_loss = dice(y_pred, y)
-    #return 0.6*bce_loss + 0.4*(1-dice_loss)
-    return  bce_loss+dice_loss
+    # return 0.6*bce_loss + 0.4*(1-dice_loss)
+    return bce_loss+dice_loss
 
 
 if arg.radam:

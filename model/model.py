@@ -9,5 +9,6 @@ class Model(object):
     
     def create_model(self):
         model =spm.Unet(self.model_name, encoder_weights=self.encoder_weights, classes=self.class_num,
-                                  activation=None).to(self.device)
+                                  activation=None)
+        model.to(self.device)                                
         return model
