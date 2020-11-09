@@ -47,8 +47,7 @@ class Decoder(nn.Module):
         self.u13 = UpSample([second*2, second, first])
         self.u04 = UpSample([first*2, first,first])
         self.classify = nn.Sequential(
-            ConvBlock(first//2,first//2),
-            nn.Conv2d(first//2,num_class,kernel_size=1),
+            nn.Conv2d(first,num_class,kernel_size=1),
         )
 
 
