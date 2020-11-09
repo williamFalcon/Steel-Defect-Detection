@@ -6,11 +6,11 @@ import torch
 from ignite.engine import (Events, create_supervised_evaluator,
                            create_supervised_trainer)
 from ignite.metrics import Accuracy, ConfusionMatrix, Loss, mIoU
-from numpy.lib.arraysetops import union1d
+
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import SGD, Adam, AdamW
 from torch.utils.data import DataLoader
-
+from util.optimizer import  RAdam
 from dataset.dataset import SteelData
 
 from segmentation.unet import Decoder
@@ -28,6 +28,7 @@ parser.add_argument('--batch_size', type=int, default=2)
 parser.add_argument('--group', type=int, default=16, help="Unet groups")
 parser.add_argument('--lr', type=float, default=6e-4, help='defalut lr')
 parser.add_argument('--backbone', type=str, default='b0', help='efficient net  choose')
+parser.add_argument('--radam',action='stroe_true')
 arg = parser.parse_args()
 print(arg)
 if torch.cuda.is_available():
