@@ -6,15 +6,13 @@ import torch
 from ignite.engine import (Events, create_supervised_evaluator,
                            create_supervised_trainer)
 from ignite.metrics import Accuracy, ConfusionMatrix, Loss, mIoU
-
+from model.model import Model
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import SGD, Adam, AdamW
 from torch.utils.data import DataLoader
 from util.optimizer import  RAdam
 from dataset.dataset import SteelData
 
-from segmentation.unet import Decoder
-from backbone.efficientnet import EfficientNet
 from util.loss import DiceLoss, lovasz_softmax
 from util.optimizer import RAdam
 
@@ -27,7 +25,7 @@ parser.add_argument('--n_cpu', type=int, default=4)
 parser.add_argument('--batch_size', type=int, default=2)
 parser.add_argument('--group', type=int, default=16, help="Unet groups")
 parser.add_argument('--lr', type=float, default=6e-4, help='defalut lr')
-parser.add_argument('--backbone', type=str, default='b0', help='efficient net  choose')
+parser.add_argument('--model', type=str, default='resnet34', help='efficient net  choose')
 parser.add_argument('--radam',action='store_true')
 arg = parser.parse_args()
 print(arg)
@@ -47,14 +45,9 @@ val_dataset = SteelData(root=arg.root, mode='val',
                         csv=train_csv)
 val_loader = DataLoader(val_dataset, num_workers=arg.n_cpu,
                         shuffle=True, drop_last=True, batch_size=arg.batch_size)
-backbone = EfficientNet.from_name(f'efficientnet-{arg.backbone}')
-inputs = torch.rand((1, 3, 224, 224))
-backbone.eval()
-endpoints = backbone.extract_endpoints(inputs)
-filters = [endpoints[f'reduction_{i}'].shape[1] for i in range(1, 6)]
-backbone.train()
-model = Decoder(backbone, filters, num_class=5).to(device)
 
+model = Model(arg.model, 5)
+segmodel = model.create_model()
 bce = BCEWithLogitsLoss().to(device)
 dice = DiceLoss().to(device)
 
@@ -68,9 +61,9 @@ def criterion(y_pred, y):
 
 if arg.radam:
     print("Use Radam")
-    optim = RAdam(model.parameters(), lr=arg.lr, weight_decay=4e-5)
+    optim = RAdam(segmodel.parameters(), lr=arg.lr, weight_decay=4e-5)
 else:
-    optim = AdamW(model.parameters(), lr=arg.lr, weight_decay=4e-5)
+    optim = AdamW(segmodel.parameters(), lr=arg.lr, weight_decay=4e-5)
 
 
 def output_transform(output):
