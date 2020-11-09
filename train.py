@@ -46,7 +46,7 @@ val_dataset = SteelData(root=arg.root, mode='val',
                         csv=train_csv)
 val_loader = DataLoader(val_dataset, num_workers=arg.n_cpu,
                         shuffle=True, drop_last=True, batch_size=arg.batch_size)
-backbone = EfficientNet.from_name(f'efficientnet_{arg.backbone}')
+backbone = EfficientNet.from_name(f'efficientnet-{arg.backbone}')
 inputs = torch.rand((1, 3, 224, 224))
 backbone.eval()
 endpoints = backbone.extract_endpoints(inputs)

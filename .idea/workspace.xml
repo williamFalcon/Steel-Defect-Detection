@@ -19,18 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="245d96b2-1102-4ecd-9253-f080e07d88fe" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/segmentation/unet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/test_unet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Steel-Defect-Detection.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Steel-Defect-Detection.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backbone/efficientnet.py" beforeDir="false" afterPath="$PROJECT_DIR$/backbone/efficientnet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/steel" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/loss.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/segmentation/unet_plus.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
-    </list>
+    <list default="true" id="245d96b2-1102-4ecd-9253-f080e07d88fe" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
