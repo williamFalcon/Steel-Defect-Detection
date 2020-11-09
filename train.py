@@ -15,6 +15,7 @@ from dataset.dataset import SteelData
 
 from util.loss import DiceLoss, lovasz_softmax
 from util.optimizer import RAdam
+from torch.optim import lr_scheduler
 
 if not os.path.exists('weights'):
     os.mkdir('weights')
@@ -25,6 +26,7 @@ parser.add_argument('--n_cpu', type=int, default=4)
 parser.add_argument('--batch_size', type=int, default=2)
 parser.add_argument('--group', type=int, default=16, help="Unet groups")
 parser.add_argument('--lr', type=float, default=6e-4, help='defalut lr')
+parser.add_argument('--epochs',type=int,default=100)
 parser.add_argument('--model', type=str, default='resnet34',
                     help='efficient net  choose')
 parser.add_argument('--radam', action='store_true')
@@ -68,6 +70,8 @@ if arg.radam:
 else:
     optim = AdamW(segmodel.parameters(), lr=arg.lr, weight_decay=4e-5)
 
+lr_scheduler = optim.lr_scheduler.CosineAnnealingLR(optim, 10)
+
 
 def output_transform(output):
     y_pred, y = output
@@ -92,7 +96,7 @@ last_iou = 0
 
 @trainer.on(Events.ITERATION_COMPLETED)
 def log_loss(trainer):
-    # lr_scheduler.step()
+    lr_scheduler.step()
     iteration = trainer.state.iteration
     i = iteration % len(train_loader)
     if iteration % 20 == 0:
