@@ -26,7 +26,7 @@ parser.add_argument('--n_cpu', type=int, default=4)
 parser.add_argument('--batch_size', type=int, default=2)
 parser.add_argument('--group', type=int, default=16, help="Unet groups")
 parser.add_argument('--lr', type=float, default=6e-4, help='defalut lr')
-parser.add_argument('--epochs',type=int,default=100)
+parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--model', type=str, default='resnet34',
                     help='efficient net  choose')
 parser.add_argument('--radam', action='store_true')
@@ -70,7 +70,7 @@ if arg.radam:
 else:
     optim = AdamW(segmodel.parameters(), lr=arg.lr, weight_decay=4e-5)
 
-lr_scheduler = optim.lr_scheduler.CosineAnnealingLR(optim, 10)
+lr_scheduler = lr_scheduler.CosineAnnealingLR(optim, 10)
 
 
 def output_transform(output):
@@ -120,4 +120,4 @@ def eval_(trainer):
     print(">>" * 20)
 
 
-trainer.run(train_loader, max_epochs=100)
+trainer.run(train_loader, max_epochs=arg.epochs)
