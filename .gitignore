@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 out.txt
 # C extensions
+data
 *.so
 weights/*
 out.txt
