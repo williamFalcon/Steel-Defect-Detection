@@ -11,12 +11,7 @@ from torchvision.transforms import *
 from util.augment import Augmentor
 
 
-def make_one_hot(mask, num_classes):
-    H, W = mask.shape
-    one_hot = torch.zeros((num_classes, H, W)).long()
-    for i in range(1,5):
-        one_hot[i-1][mask == i] = 1
-    return one_hot
+
 
 
 class SteelData(Dataset):
@@ -69,7 +64,7 @@ class SteelData(Dataset):
         img = cv2.imread(os.path.join(self.root, 'train_images', img_id))
         img, mask = self.transform(img, mask)
         img = self.normalize(img)
-        mask = make_one_hot(mask, self.num_classes)
+        #mask = make_one_hot(mask, self.num_classes)
         #mask = torch.from_numpy(mask).permute(2, 0, 1)
         return img, mask.float()
 
