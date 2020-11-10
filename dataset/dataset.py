@@ -65,7 +65,7 @@ class SteelData(Dataset):
         img, mask = self.transform(img, mask)
         img = self.normalize(img)
         #mask = make_one_hot(mask, self.num_classes)
-        #mask = torch.from_numpy(mask).permute(2, 0, 1)
+        mask = torch.from_numpy(mask)
         return img, mask.float()
 
 
