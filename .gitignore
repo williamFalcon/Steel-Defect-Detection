@@ -9,6 +9,7 @@ data
 weights/*
 out.txt
 .vscode
+run
 .idea
 # Distribution / packaging
 .Python

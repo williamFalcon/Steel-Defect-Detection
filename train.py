@@ -6,6 +6,7 @@ import torch
 from ignite.engine import (Events, create_supervised_evaluator,
                            create_supervised_trainer)
 from ignite.metrics import ConfusionMatrix, IoU, Loss, mIoU
+from ignite.utils import convert_tensor
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
@@ -17,19 +18,27 @@ from model.model import Model
 from util.loss import DiceLoss, lovasz_softmax
 from util.optimizer import RAdam
 
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+    torch.backends.cudnn.enabled = True
+    torch.backends.cudnn.benchmark = True
+else:
+    device = torch.device('cpu')
 
-def make_one_hot(mask, num_classes):
-    H, W = mask.shape
-    one_hot = torch.zeros((num_classes, H, W)).long()
-    for i in range(1, 5):
-        one_hot[i - 1][mask == i] = 1
-    return one_hot
+
+def argmax(hot):
+    b, c, w, h = hot.shape
+    mask = torch.zeros((b, w, h))
+    for i in range(b):
+        for c in range(4):
+            mask[i][hot[i][c] == 1] = i+1
+    return mask
 
 
-def prepare_batch(output, *args, **kwargs):
-    x, y = output
-    y = make_one_hot(y, 4)
-    return (x, y)
+def output_transform(batch):
+    y_pred, y = batch
+    y = argmax(y)
+    return y_pred, y
 
 
 class Trainer(object):
@@ -37,12 +46,7 @@ class Trainer(object):
         self.arg = arg
         if not os.path.exists('weights'):
             os.mkdir('weights')
-        if torch.cuda.is_available():
-            self.device = torch.device('cuda')
-            torch.backends.cudnn.enabled = True
-            torch.backends.cudnn.benchmark = True
-        else:
-            self.device = torch.device('cpu')
+
         self.writer = SummaryWriter(log_dir='run')
 
     def create_dataloader(self, arg):
@@ -64,7 +68,7 @@ class Trainer(object):
 
     def run(self):
         train_loader, val_loader = self.create_dataloader(self.arg)
-        segmodel = Model(arg.model, 4, device=self.device).create_model()
+        segmodel = Model(arg.model, 4, device=device).create_model()
         criterion = BCEWithLogitsLoss()
         if self.arg.radam:
             print("Use Radam")
@@ -73,7 +77,8 @@ class Trainer(object):
             optim = AdamW(segmodel.parameters(), lr=arg.lr, weight_decay=4e-5)
 
         lr_scheduler = CosineAnnealingLR(optim, 10)
-        cm = ConfusionMatrix(num_classes=4, device=self.device)
+        cm = ConfusionMatrix(num_classes=4, device=device,
+                             output_transform=output_transform)
         iou_metric = mIoU(cm)
         iou = IoU(cm)
         metric = {'loss': Loss(criterion), 'mIOU': iou_metric, 'IOU': iou}
@@ -81,9 +86,8 @@ class Trainer(object):
         trainer = create_supervised_trainer(segmodel,
                                             optim,
                                             criterion,
-                                            prepare_batch=prepare_batch,
-                                            device=self.device)
-        evaluator = create_supervised_evaluator(segmodel, metric, self.device)
+                                            device=device)
+        evaluator = create_supervised_evaluator(segmodel, metric, device)
 
         @trainer.on(Events.ITERATION_COMPLETED)
         def log_loss(trainer):
@@ -96,7 +100,7 @@ class Trainer(object):
                     f"Epoch {trainer.state.epoch} Iteration {i}/{len(train_loader)} Loss :{trainer.state.output}"
                 )
 
-        @trainer.on(Events.EPOCH_COMPLETED)
+        @trainer.on(Events.EPOCH_STARTED)
         def eval_(trainer):
             lr_scheduler.step()
             evaluator.run(val_loader)
