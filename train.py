@@ -38,7 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--model',
                         type=str,
-                        default='resnet34',
+                        default='unet',
                         help='efficient net  choose')
     parser.add_argument('--radam', action='store_true')
     arg = parser.parse_args()
