@@ -20,7 +20,7 @@ def make_one_hot(mask, num_classes):
 
 
 class SteelData(Dataset):
-    def __init__(self, root, mode='train', csv=None, width=512, height=256, num_classes=5):
+    def __init__(self, root, mode='train', csv=None, width=512, height=256, num_classes=4):
         super(SteelData, self).__init__()
         img_ids = list(set(csv['ImageId'].tolist()))
         img_ids.sort()
