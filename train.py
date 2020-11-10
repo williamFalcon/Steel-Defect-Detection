@@ -76,7 +76,7 @@ class Trainer(object):
         cm = ConfusionMatrix(num_classes=4, device=self.device)
         iou_metric = mIoU(cm)
         iou = IoU(cm)
-        metric = {'loss': Loss(self.criterion), 'mIOU': iou_metric, 'IOU': iou}
+        metric = {'loss': Loss(criterion), 'mIOU': iou_metric, 'IOU': iou}
         self.last_iou = 0
         trainer = create_supervised_trainer(segmodel,
                                             optim,
