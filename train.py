@@ -80,7 +80,7 @@ class Trainer(object):
                 x = x.to(device)
                 y = y.to(device)
                 y_pred = segmodel(x)
-                loss = criterion(y, y_pred)
+                loss = criterion(y_pred, y)
                 losses.append(loss.item())
                 meter.update(y.cpu().detach(), y_pred.cpu().detach())
             dices, iou = meter.get_metrics()

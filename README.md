@@ -1,9 +1,9 @@
 # Steel-Defect-Detection
 Kaggle Steel defect detection
 
-|     | model | lr_method | lr   | mIOU  |
-| --- | ----- | --------- | ---- | ----- |
-| 1   | unet  | radam     | 7e-5 | |
+|     | model | lr_method | lr   | mIOU |
+| --- | ----- | --------- | ---- | ---- |
+| 1   | unet  | radam     | 7e-5 | 0.6  |
 
 
 model:
