@@ -8,19 +8,29 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 from torchvision.transforms import *
 
-from augment import Augmentor
+from util.augment import Augmentor
 
+
+def make_one_hot(mask, num_classes):
+    H, W = mask.shape
+    one_hot = torch.zeros((num_classes, H, W)).long()
+    for i in range(5):
+        one_hot[i][mask == i] = 1
+    return one_hot
 
 
 class SteelData(Dataset):
-    def __init__(self, root, mode='train', csv=None, width=512, height=256):
+    def __init__(self, root, mode='train', csv=None, width=512, height=256, num_classes=5):
         super(SteelData, self).__init__()
         img_ids = list(set(csv['ImageId'].tolist()))
         img_ids.sort()
         pos = int(len(img_ids) * 0.8)
+        self.num_classes = num_classes
         self.root = root
         self.csv = csv
         self.normalize = Compose([
+            ToPILImage(),
+            ToTensor(),
             Normalize(mean=[0.485, 0.456, 0.406],
                       std=[0.229, 0.224, 0.225])])
         augmentor = Augmentor(width=width, height=height)
@@ -59,5 +69,18 @@ class SteelData(Dataset):
         img = cv2.imread(os.path.join(self.root, 'train_images', img_id))
         img, mask = self.transform(img, mask)
         img = self.normalize(img)
-        mask = torch.from_numpy(mask).permute(2, 0, 1)
-        return img, mask
+        mask = make_one_hot(mask, self.num_classes)
+        #mask = torch.from_numpy(mask).permute(2, 0, 1)
+        return img, mask.float()
+
+
+if __name__ == '__main__':
+    import pandas as pd
+    import os
+    root = 'data/steel'
+    train_csv = pd.read_csv(os.path.join(root, 'train.csv'))
+    train_dataset = SteelData(root=root, mode='train',
+                              csv=train_csv)
+    out = train_dataset[0]
+    #import pdb; pdb.set_trace()
+    print(out[0].shape)
