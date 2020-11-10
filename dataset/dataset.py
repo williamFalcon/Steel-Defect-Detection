@@ -11,11 +11,16 @@ from torchvision.transforms import *
 from util.augment import Augmentor
 
 
-
+def one_hot(mask, num_classes):
+    H, W = mask.shape
+    hot = torch.zeros((num_classes, H, W)).long()
+    for i in range(0, num_classes):
+        hot[i][mask == i] = 1
+    return hot
 
 
 class SteelData(Dataset):
-    def __init__(self, root, mode='train', csv=None, width=512, height=256, num_classes=4):
+    def __init__(self, root, mode='train', csv=None, width=512, height=256, num_classes=5):
         super(SteelData, self).__init__()
         img_ids = list(set(csv['ImageId'].tolist()))
         img_ids.sort()
@@ -65,8 +70,10 @@ class SteelData(Dataset):
         img, mask = self.transform(img, mask)
         img = self.normalize(img)
         #mask = make_one_hot(mask, self.num_classes)
-        mask = torch.from_numpy(mask)
-        return img, mask.float()
+        # print(np.all(mask>=0))
+        hot = one_hot(mask, self.num_classes)
+        #mask = torch.from_numpy(mask.copy())
+        return img, hot.float()
 
 
 if __name__ == '__main__':
