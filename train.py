@@ -5,7 +5,9 @@ from torch.utils.data import DataLoader
 import os
 from argparse import ArgumentParser
 import pytorch_lightning as pl
+from util.loss import DiceLoss
 from model.lightning_model import Model
+from pytorch_lightning.callbacks import ModelCheckpoint
 import torch.nn as nn
 
 
@@ -14,14 +16,13 @@ def create_dataloader(swarg):
     train_dataset = SteelData(root=arg.root, mode='train', csv=train_csv)
 
     train_loader = DataLoader(train_dataset,
-                            num_workers=arg.n_cpu,
-                            shuffle=True,
-                            drop_last=True,
-                            batch_size=arg.batch_size)
+                              num_workers=arg.n_cpu,
+                              shuffle=True,
+                              drop_last=True,
+                              batch_size=arg.batch_size)
     val_dataset = SteelData(root=arg.root, mode='val', csv=train_csv)
     val_loader = DataLoader(val_dataset,
                             num_workers=arg.n_cpu,
-                            shuffle=True,
                             drop_last=True,
                             batch_size=arg.batch_size)
     return train_loader, val_loader
@@ -42,7 +43,17 @@ if __name__ == '__main__':
     parser.add_argument('--radam', action='store_true')
     arg = parser.parse_args()
     print(arg)
-    model = Model(criterion=nn.BCEWithLogitsLoss())
-    train_loader, val_loader = create_dataloader()
-    trainer = pl.Trainer(model, gpus=1, auto_lr_find=True)
-    trainer.fit(train_dataloader=train_loader, val_dataloaders=val_loader)
+    bce = nn.BCEWithLogitsLoss()
+
+    model = Model(criterion=bce)
+    train_loader, val_loader = create_dataloader(arg)
+    trainer = pl.Trainer(gpus=1, 
+                         log_gpu_memory=True,
+                         benchmark=True,
+                         accumulate_grad_batches=5,
+                         auto_scale_batch_size='binsearch',
+                         val_check_interval=0.5)
+    # log_gpu_memory=True, val_check_interval=0.5)
+    #trainer.tune(model, train_loader, val_loader)
+    trainer.fit(model, train_dataloader=train_loader,
+                val_dataloaders=val_loader)
