@@ -48,12 +48,12 @@ if __name__ == '__main__':
     model = Model(criterion=bce, segmodel=arg.model)
     train_loader, val_loader = create_dataloader(arg)
     trainer = pl.Trainer(gpus=1,
-                         log_gpu_memory=True,
-                         benchmark=True,
-                         accumulate_grad_batches=5,
-                         auto_scale_batch_size='binsearch',
-                         max_epochs=arg.epochs,
-                         val_check_interval=0.5)
+                        log_gpu_memory=True,
+                        benchmark=True,
+                        accumulate_grad_batches=5,
+                        auto_scale_batch_size='binsearch',
+                        max_epochs=arg.epochs,
+                        val_check_interval=0.5)
     # log_gpu_memory=True, val_check_interval=0.5)
     #trainer.tune(model, train_loader, val_loader)
     trainer.fit(model,

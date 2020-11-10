@@ -53,5 +53,6 @@ class Model(pl.LightningModule):
 
     def validation_epoch_end(self, *args, **kwargs):
         self.log("val_iou", np.mean(self.ious))
+        self.log("val_iou", np.mean(self.ious),prog_bar=True)
         print(f'val iou: {np.mean(self.ious)}')
         self.ious = []
