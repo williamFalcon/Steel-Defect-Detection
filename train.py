@@ -3,16 +3,17 @@ from argparse import ArgumentParser
 
 import pandas as pd
 import torch
-from ignite.engine import (Events, _prepare_batch, create_supervised_evaluator,
+from ignite.engine import (Events, create_supervised_evaluator,
                            create_supervised_trainer)
-from ignite.metrics import Accuracy, ConfusionMatrix, Loss, mIoU, IoU
-from model.model import Model
+from ignite.metrics import ConfusionMatrix, IoU, Loss, mIoU
 from torch.nn import BCEWithLogitsLoss
-from torch.optim import SGD, Adam, AdamW
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
-from util.optimizer import RAdam
-from dataset.dataset import SteelData
 from torch.utils.tensorboard import SummaryWriter
+
+from dataset.dataset import SteelData
+from model.model import Model
 from util.loss import DiceLoss, lovasz_softmax
 from util.optimizer import RAdam
 
@@ -71,7 +72,7 @@ class Trainer(object):
         else:
             optim = AdamW(segmodel.parameters(), lr=arg.lr, weight_decay=4e-5)
 
-        lr_scheduler = optim.lr_scheduler.CosineAnnealingLR(optim, 10)
+        lr_scheduler = CosineAnnealingLR(optim, 10)
         cm = ConfusionMatrix(num_classes=4, device=self.device)
         iou_metric = mIoU(cm)
         iou = IoU(cm)
