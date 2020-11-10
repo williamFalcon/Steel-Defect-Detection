@@ -18,27 +18,14 @@ from model.model import Model
 from util.loss import DiceLoss, lovasz_softmax
 from util.optimizer import RAdam
 
+import numpy as np
 if torch.cuda.is_available():
     device = torch.device('cuda')
     torch.backends.cudnn.enabled = True
     torch.backends.cudnn.benchmark = True
 else:
     device = torch.device('cpu')
-
-
-def argmax(hot):
-    b, c, w, h = hot.shape
-    mask = torch.zeros((b, w, h))
-    for i in range(b):
-        for c in range(4):
-            mask[i][hot[i][c] == 1] = i+1
-    return mask
-
-
-def output_transform(batch):
-    y_pred, y = batch
-    y = argmax(y)
-    return y_pred, y
+from util.meter import Meter
 
 
 class Trainer(object):
@@ -77,17 +64,32 @@ class Trainer(object):
             optim = AdamW(segmodel.parameters(), lr=arg.lr, weight_decay=4e-5)
 
         lr_scheduler = CosineAnnealingLR(optim, 10)
-        cm = ConfusionMatrix(num_classes=4, device=device,
-                             output_transform=output_transform)
-        iou_metric = mIoU(cm)
-        iou = IoU(cm)
-        metric = {'loss': Loss(criterion), 'mIOU': iou_metric, 'IOU': iou}
         self.last_iou = 0
         trainer = create_supervised_trainer(segmodel,
                                             optim,
                                             criterion,
                                             device=device)
-        evaluator = create_supervised_evaluator(segmodel, metric, device)
+
+        def val(epoch, val_loader):
+            lr_scheduler.step()
+            segmodel.eval()
+            meter = Meter()
+            losses = []
+            for batch in val_loader:
+                x, y = batch
+                x = x.to(device)
+                y = y.to(device)
+                y_pred = segmodel(x)
+                loss = criterion(y, y_pred)
+                losses.append(loss.item())
+                meter.update(y.cpu().detach(), y_pred.cpu().detach())
+            dices, iou = meter.get_metrics()
+            dice, dice_neg, dice_pos = dices
+            print(
+                f"val loss {round(np.mean(losses),2)} dice:{dice} dice_neg:{dice_neg} dice_pos{dice_pos}")
+            print(f"iou : {iou}")
+            self.writer.add_scalar('iou', iou, epoch)
+            self.writer.add_scalar('val_loss', np.mean(losses), epoch)
 
         @trainer.on(Events.ITERATION_COMPLETED)
         def log_loss(trainer):
@@ -100,24 +102,9 @@ class Trainer(object):
                     f"Epoch {trainer.state.epoch} Iteration {i}/{len(train_loader)} Loss :{trainer.state.output}"
                 )
 
-        @trainer.on(Events.EPOCH_STARTED)
-        def eval_(trainer):
-            lr_scheduler.step()
-            evaluator.run(val_loader)
-            output = evaluator.state.metrics
-            if output['mIOU'] > self.last_iou:
-                self.last_iou = output['mIOU']
-                torch.save(segmodel, f'weights/best_unet++.pth')
-            self.writer.add_scalar('val_loss', output['loss'],
-                                   trainer.state.epoch)
-            self.writer.add_scalar('val_miou', output['mIOU'],
-                                   trainer.state.epoch)
-            print(">>" * 20)
-            with open('out.txt', 'a') as f:
-                s = f"Epoch {trainer.state.epoch} Loss {output['loss']} mIOU :{output['mIOU']} IOU:{output['IOU']}\n"
-                print(s)
-                f.write(s)
-            print(">>" * 20)
+        @trainer.on(Events.EPOCH_COMPLETED)
+        def eval(trainer):
+            val(trainer.state.epoch, val_loader)
 
         trainer.run(train_loader, max_epochs=self.arg.epochs)
 
@@ -128,7 +115,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_cpu', type=int, default=4)
     parser.add_argument('--batch_size', type=int, default=2)
     parser.add_argument('--group', type=int, default=16, help="Unet groups")
-    parser.add_argument('--lr', type=float, default=6e-4, help='defalut lr')
+    parser.add_argument('--lr', type=float, default=7e-5, help='defalut lr')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--model',
                         type=str,

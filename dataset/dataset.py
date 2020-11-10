@@ -73,7 +73,7 @@ class SteelData(Dataset):
         # print(np.all(mask>=0))
         hot = one_hot(mask, self.num_classes)
         #mask = torch.from_numpy(mask.copy())
-        return img,  hot.float()
+        return img, hot.float()
 
 
 if __name__ == '__main__':
