@@ -49,7 +49,7 @@ val_dataset = SteelData(root=arg.root, mode='val',
 val_loader = DataLoader(val_dataset, num_workers=arg.n_cpu,
                         shuffle=True, drop_last=True, batch_size=arg.batch_size)
 
-model = Model(arg.model, 5, device=device)
+model = Model(arg.model, 4, device=device)
 segmodel = model.create_model()
 bce = BCEWithLogitsLoss()
 bce.to(device)
@@ -63,7 +63,7 @@ def criterion(y_pred, y):
     # return 0.6*bce_loss + 0.4*(1-dice_loss)
     return bce_loss+dice_loss
 
-
+criterion = bce
 if arg.radam:
     print("Use Radam")
     optim = RAdam(segmodel.parameters(), lr=arg.lr, weight_decay=4e-5)
@@ -80,8 +80,8 @@ def output_transform(output):
 
 
 cm = ConfusionMatrix(
-    num_classes=5, output_transform=output_transform, device=device)
-iou_metric = mIoU(cm, ignore_index=0)
+    num_classes=4, output_transform=output_transform, device=device)
+iou_metric = mIoU(cm)
 metric = {
     'loss': Loss(criterion),
     'mIOU': iou_metric

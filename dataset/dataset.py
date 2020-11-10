@@ -14,7 +14,7 @@ from util.augment import Augmentor
 def make_one_hot(mask, num_classes):
     H, W = mask.shape
     one_hot = torch.zeros((num_classes, H, W)).long()
-    for i in range(5):
+    for i in range(1,5):
         one_hot[i][mask == i] = 1
     return one_hot
 
