@@ -43,7 +43,7 @@ class Model(pl.LightningModule):
 
         optimizer = AdamW(self.parameters(), lr=self.lr)
         scheduler = lr_scheduler.ReduceLROnPlateau(
-            optimizer, patience=3, verbose=True, factor=0.5, eps=1e-6, min_lr=5e-5)
+            optimizer, patience=3, verbose=True, factor=0.5, eps=1e-6, min_lr=1e-5)
         return {'optimizer': optimizer, 'lr_scheduler': scheduler, 'monitor': 'train_loss'}
 
     def validation_step(self, batch, batch_idx):
