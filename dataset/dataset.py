@@ -45,7 +45,8 @@ class SteelData(Dataset):
         '''
         ImageId,ClassId,EncodedPixels
         '''
-        mask = np.zeros((256*1600), np.uint8)
+        mask = np.zeros((256 * 1600), np.uint8)
+        label = [0]*self.num_classes
         for j in range(len(rows)):
             row = rows.iloc[j]
             class_id = row['ClassId']
@@ -54,10 +55,11 @@ class SteelData(Dataset):
             starts, lengths = encoded_pixels[:: 2], encoded_pixels[1:: 2]
             starts -= 1  # 因为起始值是1，所以先要把坐标减一下
             for index, start in enumerate(starts):
-                mask[int(start): int(start + lengths[index])] = class_id
+                mask[int(start):int(start + lengths[index])] = class_id
+                label[class_id] = 1
         mask = mask.reshape((1600, 256)).T
 
-        return mask
+        return mask,labels
 
     def __len__(self):
         return len(self.img_ids)
@@ -65,7 +67,7 @@ class SteelData(Dataset):
     def __getitem__(self, index):
         img_id = self.img_ids[index]
         rows = self.csv[self.csv['ImageId'] == img_id]
-        mask = self.decode(rows)
+        mask, label = self.decode(rows)
         img = cv2.imread(os.path.join(self.root, 'train_images', img_id))
         img, mask = self.transform(img, mask)
         img = self.normalize(img)
@@ -73,7 +75,7 @@ class SteelData(Dataset):
         # print(np.all(mask>=0))
         hot = one_hot(mask, self.num_classes)
         #mask = torch.from_numpy(mask.copy())
-        return img, hot.float()
+        return img, hot.float(), torch.tensor(label)
 
 
 if __name__ == '__main__':

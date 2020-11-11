@@ -6,7 +6,7 @@ import os
 from argparse import ArgumentParser
 import pytorch_lightning as pl
 from util.loss import DiceLoss
-from model.lightning_model import Model
+from model.model import Model
 from pytorch_lightning.callbacks import ModelCheckpoint
 import torch.nn as nn
 
@@ -36,10 +36,15 @@ if __name__ == '__main__':
     parser.add_argument('--group', type=int, default=16, help="Unet groups")
     parser.add_argument('--lr', type=float, default=1e-3, help='defalut lr')
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--model',
+    parser.add_argument('--decoder',
                         type=str,
                         default='unet',
                         help='efficient net  choose')
+    parser.add_argument('--encoder',
+                        type=str,
+                        default='resnet34',
+                        help='efficient net  choose')
+
     parser.add_argument('--radam', action='store_true')
     arg = parser.parse_args()
     print(arg)
@@ -47,12 +52,16 @@ if __name__ == '__main__':
     bce = nn.BCEWithLogitsLoss()
     dice = DiceLoss()
 
-    def criterion(y_pred, y):
+    def seg_criterion(y_pred, y):
         bce_loss = bce(y_pred, y)
         dice_loss = dice(y_pred, y)
-        return 0.6*bce_loss+0.4*dice_loss
+        return 0.6 * bce_loss + 0.4 * dice_loss
 
-    model = Model(criterion=criterion, segmodel=arg.model)
+    cls_criterion = nn.BCEWithLogitsLoss()
+
+    model = Model(seg_criterion=seg_criterion,
+                  encoder=arg.encoder,
+                  cls_criterionc=cls_criterion, decoder=arg.mode)
     train_loader, val_loader = create_dataloader(arg)
     trainer = pl.Trainer(gpus=1,
                          log_gpu_memory=True,
