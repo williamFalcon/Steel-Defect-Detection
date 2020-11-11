@@ -29,7 +29,8 @@
   <component name="ChangeListManager">
     <list default="true" id="245d96b2-1102-4ecd-9253-f080e07d88fe" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/util/loss.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,9 +95,14 @@
       <screen x="0" y="0" width="1504" height="972" />
     </state>
     <state x="254" y="131" key="SettingsEditor/0.0.1504.972@0.0.1504.972" timestamp="1605068495365" />
-    <state x="415" y="208" width="672" height="678" key="search.everywhere.popup" timestamp="1605068769723">
-      <screen x="0" y="0" width="1504" height="972" />
+    <state x="405" y="196" width="629" height="530" key="find.popup" timestamp="1605132292049">
+      <screen x="0" y="23" width="1440" height="877" />
     </state>
+    <state x="405" y="196" width="629" height="530" key="find.popup/-2560.-600.2560.1417/0.23.1440.877@0.23.1440.877" timestamp="1605132292049" />
+    <state x="397" y="211" width="670" height="612" key="search.everywhere.popup" timestamp="1605132239156">
+      <screen x="0" y="23" width="1440" height="877" />
+    </state>
+    <state x="397" y="211" width="670" height="612" key="search.everywhere.popup/-2560.-600.2560.1417/0.23.1440.877@0.23.1440.877" timestamp="1605132239156" />
     <state x="415" y="208" width="672" height="678" key="search.everywhere.popup/0.0.1504.972@0.0.1504.972" timestamp="1605068769723" />
   </component>
 </project>
