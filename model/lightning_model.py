@@ -1,10 +1,14 @@
 from typing import IO
-import pytorch_lightning as pl
-from segmentation_models_pytorch.utils.metrics import IoU
-import segmentation_models_pytorch as smp
-from torch.optim import AdamW, lr_scheduler
-import torch
+
 import numpy as np
+import pytorch_lightning as pl
+import segmentation_models_pytorch as smp
+import torch
+from segmentation_models_pytorch.encoders import get_encoder
+from segmentation_models_pytorch.utils.metrics import IoU
+from torch.optim import AdamW, lr_scheduler
+
+from model.unet_plus import Decoder
 
 
 class Model(pl.LightningModule):
@@ -38,9 +42,9 @@ class Model(pl.LightningModule):
     def configure_optimizers(self):
 
         optimizer = AdamW(self.parameters(), lr=self.lr)
-        scheduler = lr_scheduler.CyclicLR(
-            optimizer, base_lr=6e-4, max_lr=1e-3, step_size_down=300, step_size_up=300, cycle_momentum=False)
-        return [optimizer], [scheduler]
+        scheduler = lr_scheduler.ReduceLROnPlateau(
+            optimizer, patience=3, verbose=True, factor=0.5, eps=1e-6, min_lr=5e-5)
+        return {'optimizer': optimizer, 'lr_scheduler': scheduler, 'monitor': 'train_loss'}
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
@@ -53,6 +57,36 @@ class Model(pl.LightningModule):
 
     def validation_epoch_end(self, *args, **kwargs):
         self.log("val_iou", np.mean(self.ious))
-        self.log("val_iou", np.mean(self.ious),prog_bar=True)
+        self.log("val_iou", np.mean(self.ious), prog_bar=True)
         print(f'val iou: {np.mean(self.ious)}')
         self.ious = []
+
+class PlusModel(Model):
+    def __init__(self, criterion, encoder='resnet34', lr=1e-3, num_class=5):
+        super(PlusModel,self).__init__()
+        self.encoder = get_encoder(encoder)
+        self.lr = lr
+        self.criterion=criterion
+        self.decoder = Decoder(filters=self.encoder.out_channels[1:], num_class=num_class)
+
+    def forward(self, x):
+        encoder_out = self.encoder(x)
+        decoder_out = self.decoder(encoder_out)
+        return decoder_out
+        
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        y_pred = self.decoder(self.encoder(x))
+        loss = self.criterion(y_pred, y)
+        self.log("train_loss", loss)
+        return loss
+
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_pred = self.decoder(self.encoder(x))
+        val_loss = self.criterion(y_pred, y)
+        self.log("val_loss", val_loss)
+        iou = IoU(ignore_channels=[0])(y_pred, y)
+        self.ious.append(iou.item())
+        return val_loss

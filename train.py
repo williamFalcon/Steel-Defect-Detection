@@ -34,26 +34,33 @@ if __name__ == '__main__':
     parser.add_argument('--n_cpu', type=int, default=4)
     parser.add_argument('--batch_size', type=int, default=2)
     parser.add_argument('--group', type=int, default=16, help="Unet groups")
-    parser.add_argument('--lr', type=float, default=7e-5, help='defalut lr')
+    parser.add_argument('--lr', type=float, default=1e-3, help='defalut lr')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--model',
                         type=str,
-                        default='resnet34',
+                        default='unet',
                         help='efficient net  choose')
     parser.add_argument('--radam', action='store_true')
     arg = parser.parse_args()
     print(arg)
+    from util.loss import lovasz_softmax
     bce = nn.BCEWithLogitsLoss()
+    dice = DiceLoss()
 
-    model = Model(criterion=bce, segmodel=arg.model)
+    def criterion(y_pred, y):
+        bce_loss = bce(y_pred, y)
+        dice_loss = dice(y_pred, y)
+        return 0.6*bce_loss+0.4*dice_loss
+
+    model = Model(criterion=criterion, segmodel=arg.model)
     train_loader, val_loader = create_dataloader(arg)
     trainer = pl.Trainer(gpus=1,
-                        log_gpu_memory=True,
-                        benchmark=True,
-                        accumulate_grad_batches=5,
-                        auto_scale_batch_size='binsearch',
-                        max_epochs=arg.epochs,
-                        val_check_interval=0.5)
+                         log_gpu_memory=True,
+                         benchmark=True,
+                         accumulate_grad_batches=5,
+                         auto_scale_batch_size='binsearch',
+                         max_epochs=arg.epochs,
+                         val_check_interval=0.5)
     # log_gpu_memory=True, val_check_interval=0.5)
     #trainer.tune(model, train_loader, val_loader)
     trainer.fit(model,
