@@ -83,7 +83,7 @@ class SteelData(Dataset):
 if __name__ == '__main__':
     import pandas as pd
     import os
-    root = 'data/steel'
+    root = 'kaggle_steel/steel'
     train_csv = pd.read_csv(os.path.join(root, 'train.csv'))
     train_dataset = SteelData(root=root, mode='train',
                               csv=train_csv)
