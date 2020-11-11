@@ -46,7 +46,7 @@ class Model(pl.LightningModule):
                        'psp': smp.PSPNet, 'unetpp': UnetPP}
         self.criterion = criterion
         self.iou_cal = IoU(ignore_channels=[0])
-        self.threshold = threshold
+        self.threshold = threshold.as_integer_ratio()
         self.decoder = decoder_map[decoder](encoder, encoder_weights='imagenet', classes=num_class,
                                             activation=None)
 
