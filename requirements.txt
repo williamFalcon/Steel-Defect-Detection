@@ -1,3 +1,5 @@
 segmentation-models-pytorch
 imgaug
 pytorch_lightning
+pandas
+sklearn
