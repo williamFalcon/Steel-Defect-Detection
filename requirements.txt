@@ -3,3 +3,4 @@ imgaug
 pytorch_lightning
 pandas
 sklearn
+opencv-python-headless

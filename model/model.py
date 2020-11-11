@@ -47,7 +47,7 @@ class Model(pl.LightningModule):
         self.criterion = criterion
         self.iou_cal = IoU(ignore_channels=[0])
         self.threshold = threshold
-        self.decoder = decoder_map[decoder](encoder, encoder_weights='imagenet', classes=num_class,
+        self.decoder = pl.decoder_map[decoder](encoder, encoder_weights='imagenet', classes=num_class,
                                             activation=None)
 
     def forwardd(self, x):
