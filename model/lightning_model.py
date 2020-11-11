@@ -40,7 +40,6 @@ class Model(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-
         optimizer = AdamW(self.parameters(), lr=self.lr)
         scheduler = lr_scheduler.ReduceLROnPlateau(
             optimizer, patience=3, verbose=True, factor=0.5, eps=1e-6, min_lr=1e-5)
@@ -61,26 +60,26 @@ class Model(pl.LightningModule):
         print(f'val iou: {np.mean(self.ious)}')
         self.ious = []
 
+
 class PlusModel(Model):
     def __init__(self, criterion, encoder='resnet34', lr=1e-3, num_class=5):
-        super(PlusModel,self).__init__()
+        super(PlusModel, self).__init__()
         self.encoder = get_encoder(encoder)
         self.lr = lr
-        self.criterion=criterion
+        self.criterion = criterion
         self.decoder = Decoder(filters=self.encoder.out_channels[1:], num_class=num_class)
 
     def forward(self, x):
         encoder_out = self.encoder(x)
         decoder_out = self.decoder(encoder_out)
         return decoder_out
-        
+
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self.decoder(self.encoder(x))
         loss = self.criterion(y_pred, y)
         self.log("train_loss", loss)
         return loss
-
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
