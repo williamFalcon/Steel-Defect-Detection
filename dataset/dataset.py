@@ -13,10 +13,14 @@ from util.augment import Augmentor
 
 def one_hot(mask, num_classes):
     H, W = mask.shape
+    labels = torch.tensor([0]*num_classes).float()
     hot = torch.zeros((num_classes, H, W)).long()
     for i in range(0, num_classes):
-        hot[i][mask == i] = 1
-    return hot
+        index = mask == i
+        hot[i][index] = 1
+        if index.any():
+            labels[i] = 1
+    return hot, labels
 
 
 class SteelData(Dataset):
@@ -46,7 +50,6 @@ class SteelData(Dataset):
         ImageId,ClassId,EncodedPixels
         '''
         mask = np.zeros((256 * 1600), np.uint8)
-        label = [0]*self.num_classes
         for j in range(len(rows)):
             row = rows.iloc[j]
             class_id = row['ClassId']
@@ -56,10 +59,9 @@ class SteelData(Dataset):
             starts -= 1  # 因为起始值是1，所以先要把坐标减一下
             for index, start in enumerate(starts):
                 mask[int(start):int(start + lengths[index])] = class_id
-                label[class_id] = 1
         mask = mask.reshape((1600, 256)).T
 
-        return mask,labels
+        return mask
 
     def __len__(self):
         return len(self.img_ids)
@@ -67,15 +69,15 @@ class SteelData(Dataset):
     def __getitem__(self, index):
         img_id = self.img_ids[index]
         rows = self.csv[self.csv['ImageId'] == img_id]
-        mask, label = self.decode(rows)
+        mask = self.decode(rows)
         img = cv2.imread(os.path.join(self.root, 'train_images', img_id))
         img, mask = self.transform(img, mask)
         img = self.normalize(img)
         #mask = make_one_hot(mask, self.num_classes)
         # print(np.all(mask>=0))
-        hot = one_hot(mask, self.num_classes)
+        hot,label = one_hot(mask, self.num_classes)
         #mask = torch.from_numpy(mask.copy())
-        return img, hot.float(), torch.tensor(label)
+        return img, hot.float(), label
 
 
 if __name__ == '__main__':

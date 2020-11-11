@@ -57,11 +57,11 @@ if __name__ == '__main__':
         dice_loss = dice(y_pred, y)
         return 0.6 * bce_loss + 0.4 * dice_loss
 
-    cls_criterion = nn.BCEWithLogitsLoss()
-
-    model = Model(seg_criterion=seg_criterion,
+    checkpoint = ModelCheckpoint(
+        filepath='weights', verbose=True, mode='max', monitor='iou')
+    model = Model(criterion=seg_criterion,
                   encoder=arg.encoder,
-                  cls_criterionc=cls_criterion, decoder=arg.mode)
+                  decoder=arg.decoder)
     train_loader, val_loader = create_dataloader(arg)
     trainer = pl.Trainer(gpus=1,
                          log_gpu_memory=True,

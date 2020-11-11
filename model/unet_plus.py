@@ -53,7 +53,7 @@ class SegmentHead(nn.Module):
         
 
 class UnetPP(nn.Module):
-    def __init__(self, encoder_name, classes=5, aux_params: Optional[dict] = None, *args, **kwargs):
+    def __init__(self, encoder_name, classes=5,  *args, **kwargs):
         '''
         Args:
             encoder_name: name of classification model (without last dense layers) used as feature
@@ -99,12 +99,6 @@ class UnetPP(nn.Module):
         self.cl4 = SegmentHead(zero, classes)
         self.deepsupervise = nn.Conv2d(classes * 4, classes, 1)
         initialize_decoder(self)
-        if aux_params is not None:
-            self.classification_head = ClassificationHead(
-                in_channels=self.encoder.out_channels[-1], **aux_params
-            )
-        else:
-            self.classification_head = None
 
     def forward(self, x):
         H, W = x.shape[2:]
@@ -126,9 +120,6 @@ class UnetPP(nn.Module):
         u4 = self.cl4(x04,H,W)
         uc = torch.cat([u1, u2, u3, u4], dim=1)
         masks = self.deepsupervise(uc)
-        if self.classification_head is not None:
-            labels = self.classification_head(features[-1])
-            return masks, labels
         return masks
 
 
